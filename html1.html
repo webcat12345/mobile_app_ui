@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Drag and Drop Interface</title>
+
+
+    <link href="dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="devices.min.css" type="text/css">    
+    
+    <link href="dist/custom/custom.css" rel="stylesheet">
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+
+  <style type="text/css" media="screen">
+    #editor-html { 
+      position: absolute;
+      top: 0;
+      width: 30%;
+      bottom: 0;
+      left: 0;
+      z-index: -1;
+      font-size: 14px;
+      visibility: hidden;
+    }
+
+    #editor-css {
+      position: absolute;
+      top: 0;
+      width: 30%;
+      bottom: 0;
+      left: 70%;
+      z-index: -1;
+      font-size: 14px;    
+    }
+  </style>
+
+  <body onload="load()">
+    <div id="element-show">
+      <button class="btn btn-primary btn-view-code" onclick="view_code_btn_click()">VIEW CODE</button>
+    </div>
+    <div id="editor-html"></div>
+    <div id="code-button" class="button-group">
+      <button class="btn btn-primary btn-custom" onclick="save_btn_click()">Save</button>
+      <button class="btn btn-primary btn-custom" onclick="cancel_btn_click()">Cancel</button>
+    </div>
+
+    <div id="editor-css">
+    </div>
+    <div id="device-container">
+      <div class="marvel-device iphone6 silver device-position">
+
+        <div class="top-bar"></div>
+        <div class="sleep"></div>
+        <div class="volume"></div>
+        <div class="camera"></div>
+        <div class="sensor"></div>
+        <div class="speaker"></div>
+        <iframe id="show-result" class="phone-display screen"></iframe>            
+        <div class="home"></div>
+        <div class="bottom-bar"></div>
+      </div>
+
+    </div>
+
+
+    <script src="src/ace.js" type="text/javascript" charset="utf-8"></script>
+    <script src="template.js" type="text/javascript" charset="utf-8"></script>
+    <script>
+
+        var extern_head_link = "";
+
+        var editor_css = ace.edit("editor-css");
+        editor_css.setTheme("ace/theme/chrome");
+        editor_css.getSession().setMode("ace/mode/css");
+        
+        var editor_html = ace.edit("editor-html");
+        editor_html.setTheme("ace/theme/chrome");
+        editor_html.getSession().setMode("ace/mode/javascript");
+
+        function load() {
+          editor_html.setValue(bootstrap_template_html);
+          editor_css.setValue(bootstrap_template_css);          
+        }
+
+
+        editor_html.getSession().on('change', function(e) {
+
+          var html_string = editor_html.getValue();
+          var css_string = editor_css.getValue();
+          var iframe = document.getElementById('show-result');
+          
+          iframe.contentWindow.document.open();
+          iframe.contentWindow.document.write(html_string);
+          iframe.contentWindow.document.close();
+
+          var head_link = iframe.contentWindow.document.head.innerHTML;
+          var string = head_link + "<style type='text/css' media='screen'>" + css_string + "</style>";
+          iframe.contentWindow.document.head.innerHTML = string;
+
+        });
+
+        editor_css.getSession().on('change', function(e) {
+
+          var css_string = editor_css.getValue();
+          var html_string = editor_html.getValue();
+          var iframe = document.getElementById('show-result');
+
+          iframe.contentWindow.document.open();
+          iframe.contentWindow.document.write(html_string);
+          iframe.contentWindow.document.close();
+
+          var head_link = iframe.contentWindow.document.head.innerHTML;
+          var string = head_link + "<style type='text/css' media='screen'>" + css_string + "</style>";
+
+          iframe.contentWindow.document.head.innerHTML = string;
+        })
+
+        function view_code_btn_click() {
+          toggle_mode('code');
+        }
+
+
+        function save_btn_click() {
+          var html_string = editor_html.getValue();
+          var css_string = editor_css.getValue();
+          var iframe = document.getElementById('show-result');
+          
+          iframe.contentWindow.document.open();
+          iframe.contentWindow.document.write(html_string);
+          iframe.contentWindow.document.close();
+
+          var head_link = iframe.contentWindow.document.head.innerHTML;
+          var string = head_link + "<style type='text/css' media='screen'>" + css_string + "</style>";
+          iframe.contentWindow.document.head.innerHTML = string;
+          toggle_mode('element');
+        }
+
+        function cancel_btn_click() {
+          toggle_mode('element');
+        }
+
+        function toggle_mode(mode) {
+          if (mode == 'code') {
+            var code_panel = document.getElementById('editor-html');
+            var element_panel = document.getElementById('element-show');
+            var button_group = document.getElementById('code-button');
+            element_panel.style.visibility = 'hidden';
+            code_panel.style.visibility = 'visible';
+            button_group.style.visibility = 'visible';
+          }  else {
+            var code_panel = document.getElementById('editor-html');
+            var element_panel = document.getElementById('element-show');
+            var button_group = document.getElementById('code-button');
+            code_panel.style.visibility = 'hidden';
+            element_panel.style.visibility = 'visible';
+            button_group.style.visibility = 'hidden';
+          }
+        }
+    </script>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="dist/js/bootstrap.min.js"></script>
+  </body>
+</html>
